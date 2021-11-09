@@ -1,0 +1,2 @@
+usage: DynamicWallpaper.py [-h] [-n] {s,u,a} value interval
+DynamicWallpaper.py: error: argument option: invalid choice: 'b' (choose from 's', 'u', 'a')

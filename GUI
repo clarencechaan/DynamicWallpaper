@@ -1,0 +1,120 @@
+#!/usr/bin/python
+
+from Tkinter import *
+import tkFileDialog
+import os
+import DynamicWallpaper as dw
+import multiprocessing
+
+def start():
+    b_start.config(state=DISABLED)
+    b_stop.config(state=NORMAL)
+    disable_greyable()
+    p = multiprocessing.Process(target=dw.start, args=(option.get(), e_term.get(), int(e_interval.get()), flag_new.get()))
+    processes.append(p)
+    p.start()
+
+def stop():
+    b_start.config(state=NORMAL)
+    b_stop.config(state=DISABLED)
+    enable_greyable()
+    for p in processes:
+        p.terminate()
+
+def get_dir():
+	currdir = os.getcwd()
+	tempdir = tkFileDialog.askdirectory(parent=root, initialdir=currdir, title='Please select a directory')
+	if len(tempdir) > 0:
+	    e_term.insert(INSERT, tempdir)
+
+def change_radio():
+    if option.get() == "s":
+        l_term.config(text="Search Term:")
+        b_browse.config(state=DISABLED)
+        c_new_only.config(state=NORMAL)
+        e_term.delete(0,END)
+        # e_term.insert(END, 'minimalism')
+    elif option.get() == "u":
+        l_term.config(text="Username:")
+        b_browse.config(state=DISABLED)
+        c_new_only.config(state=NORMAL)
+        e_term.delete(0,END)
+        # e_term.insert(END, 'alexcurrie')
+    elif option.get() == "a":
+        l_term.config(text="Album ID:")
+        b_browse.config(state=DISABLED)
+        c_new_only.config(state=NORMAL)
+        e_term.delete(0,END)
+        # e_term.insert(END, '72157669309212490')
+    elif option.get() == "d":
+        l_term.config(text="Local Directory:")
+        b_browse.config(state=NORMAL)
+        flag_new.set(0)
+        c_new_only.config(state=DISABLED)
+        e_term.delete(0,END)
+
+def disable_greyable():
+    for g in greyable:
+        g.config(state=DISABLED)
+
+def enable_greyable():
+    for g in greyable:
+        g.config(state=NORMAL)
+
+processes = []
+
+root = Tk()
+root.wm_title("DynamicWallpaper")
+img = PhotoImage(file='DW.png')
+root.tk.call('wm', 'iconphoto', root._w, img)
+
+l_term = Label(root)
+e_term = Entry(root)
+b_start = Button(root)
+b_stop = Button(root)
+b_browse = Button(root)
+c_new_only = Checkbutton(root)
+
+option = StringVar()
+term = "minimalism"
+interval = 5
+flag_new = BooleanVar()
+
+l_welcome = Label(root, text="Welcome to DynamicWallpaper by Clarence Chan")
+l_welcome.pack()
+
+r1 = Radiobutton(root, text="Search", variable=option, value="s", command=change_radio)
+r1.pack(anchor=W)
+r1.invoke()
+r2 = Radiobutton(root, text="User", variable=option, value="u", command=change_radio)
+r2.pack(anchor=W)
+r3 = Radiobutton(root, text="Album ID", variable=option, value="a", command=change_radio)
+r3.pack(anchor=W)
+r4 = Radiobutton(root, text="Local Directory", variable=option, value="d", command=change_radio)
+r4.pack(anchor=W)
+
+Label(root, text="Interval (in seconds):").pack(anchor=W)
+e_interval = Entry(root, width=6)
+e_interval.insert(END, '5')
+e_interval.pack(anchor=W)
+
+l_term.pack(anchor=W)
+e_term = Entry(root, width=40)
+e_term.insert(END, 'minimalism')
+e_term.pack(anchor=W)
+
+c_new_only = Checkbutton(root, text="New Photos Only", variable=flag_new)
+c_new_only.pack(side=RIGHT)
+
+b_start = Button(root, text="Start", command=start)
+b_start.pack(side=LEFT)
+b_stop = Button(root, text="Stop", command=stop, state=DISABLED)
+b_stop.pack(side=LEFT)
+b_browse = Button(root, text="Browse", command=get_dir, state=DISABLED)
+b_browse.pack(side=LEFT)
+
+greyable = [r1, r2, r3, r4, e_interval, e_term, b_browse, c_new_only]
+
+mainloop()
+
+root.mainloop()
